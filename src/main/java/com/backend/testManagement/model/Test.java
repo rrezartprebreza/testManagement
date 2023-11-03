@@ -2,10 +2,7 @@ package com.backend.testManagement.model;
 
 
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -20,11 +17,12 @@ import java.util.UUID;
 @AllArgsConstructor
 @Table(name = "test")
 @Entity
+@Builder
 public class Test {
 
     @Id
     @Column(name = "id")
-    private String id= UUID.randomUUID().toString();
+    private final String id= UUID.randomUUID().toString();
 
     @Column(name = "name")
     private String name;
