@@ -1,5 +1,6 @@
 package com.backend.testManagement.controller;
 
+import com.backend.testManagement.dto.CommonResponseDTO;
 import com.backend.testManagement.dto.TestDTO;
 import com.backend.testManagement.dto.TestDTOSave;
 import com.backend.testManagement.services.TestService;
@@ -27,10 +28,10 @@ public class TestController {
     @ApiResponse(responseCode = "404", description = "No tests found")
     @ApiResponse(responseCode = "500", description = "Internal server error")
     @ApiResponse(responseCode = "400", description = "Invalid request")
-    public ResponseEntity<Map<String, Object>> getAllTests(@RequestParam(value = "page", defaultValue = "0") int page,
-                                                                 @RequestParam(value = "size", defaultValue = "10") int size,
-                                                                 @RequestParam(value = "sort", defaultValue = "id") String sortProperty,
-                                                                 @RequestParam(value = "order", defaultValue = "asc") String order) {
+    public ResponseEntity<CommonResponseDTO<TestDTO>> getAllTests(@RequestParam(value = "page", defaultValue = "0") int page,
+                                                                  @RequestParam(value = "size", defaultValue = "10") int size,
+                                                                  @RequestParam(value = "sort", defaultValue = "id") String sortProperty,
+                                                                  @RequestParam(value = "order", defaultValue = "asc") String order) {
         return new ResponseEntity<>(testService.getAllTests(page, size, sortProperty, order), HttpStatus.OK);
     }
 

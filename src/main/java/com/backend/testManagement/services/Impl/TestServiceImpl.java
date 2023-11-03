@@ -1,7 +1,9 @@
 package com.backend.testManagement.services.Impl;
 
+import com.backend.testManagement.dto.CommonResponseDTO;
 import com.backend.testManagement.dto.TestDTO;
 import com.backend.testManagement.dto.TestDTOSave;
+import com.backend.testManagement.dto.ValidationUtilsDTO;
 import com.backend.testManagement.exceptions.BadRequestException;
 import com.backend.testManagement.exceptions.EntityNotFoundException;
 import com.backend.testManagement.exceptions.InternalServerErrorException;
@@ -18,8 +20,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Map;
-import java.util.HashMap;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
@@ -62,46 +62,26 @@ public class TestServiceImpl implements TestService {
 
     @Override
     @Transactional(readOnly = true)
-    public Map<String, Object> getAllTests(int pageNo, int pageSize, String sortBy, String sortDirection) {
+    public CommonResponseDTO<TestDTO> getAllTests(int pageNo, int pageSize, String sortBy, String sortDirection) {
+        ValidationUtilsDTO.validatePageParameters(pageNo, pageSize);
 
-        // Validate the input parameters
-        if (pageNo < 0) {
-            throw new IllegalArgumentException("Page number must be non-negative");
-        }
-        if (pageSize < 1) {
-            throw new IllegalArgumentException("Page size must be greater than zero");
-        }
-
-        // Create a Pageable object
-        Sort sort = Sort.by(sortBy).ascending();
-        if (sortDirection.equalsIgnoreCase("desc")) {
+        Sort sort = Sort.by(sortBy);
+        if ("desc".equalsIgnoreCase(sortDirection)) {
             sort = sort.descending();
         }
         Pageable pageable = PageRequest.of(pageNo, pageSize, sort);
 
-        // Retrieve the test page
         Page<Test> testPage = testRepository.findAll(pageable);
 
-        // Check if there are any tests
         if (testPage.isEmpty()) {
             logAndThrowEntityNotFoundException("No tests found");
         }
 
-        // Convert the Test objects to TestDTO objects
         List<TestDTO> testDTOs = testPage.getContent().stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
 
-        // Create the response map
-        Map<String, Object> response = new HashMap<>();
-        response.put("list", testDTOs);
-        response.put("totalItems", testPage.getTotalElements());
-        response.put("currentPage", testPage.getNumber());
-        response.put("pageNumber", pageNo);
-        response.put("pageSize", pageSize);
-
-        return response;
-
+        return buildCommonResponse(testDTOs, testPage);
     }
 
 
@@ -134,4 +114,15 @@ public class TestServiceImpl implements TestService {
                 .lastname(testDTO.getLastname())
                 .build();
     }
+
+    private CommonResponseDTO<TestDTO> buildCommonResponse(List<TestDTO> testDTOs, Page<Test> testPage) {
+        CommonResponseDTO<TestDTO> response = new CommonResponseDTO<>();
+        response.setList(testDTOs);
+        response.setTotalItems(testPage.getTotalElements());
+        response.setCurrentPage(testPage.getNumber());
+        response.setPageNumber(testPage.getNumber());
+        response.setPageSize(testPage.getSize());
+        return response;
+    }
+
 }
