@@ -1,0 +1,61 @@
+version: "3"
+services:
+
+  database:
+    image: mariadb:10.4
+    environment:
+      MYSQL_ROOT_PASSWORD: abc
+      MARIADB_DATABASE: testManagement_db
+    command: ['mysqld', '--lower-case-table-names=1']
+    ports:
+      - 3306:3306
+    volumes:
+      - database_volume:/var/lib/mysql
+#      - ./docker/database/keycloak-init.sql:/docker-entrypoint-initdb.d/keycloak-init.sql
+    networks:
+      - database_network
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin:5.0.2
+    environment:
+      PMA_HOST: database
+    ports:
+      - 8099:80
+    depends_on:
+      - database
+    networks:
+      - database_network
+
+#  keycloak:
+#    image: hub.syncpilot.io/com.syncpilot/sp-keycloak:2.0.0-SNAPSHOT
+#    pull_policy: always
+#    environment:
+#      - PUID=1000
+#      - PGID=1000
+#      - KEYCLOAK_USER=admin
+#      - KEYCLOAK_PASSWORD=admin
+#      - KEYCLOAK_IMPORT=/opt/sp-keycloak/2.x/sp_realm.json
+#      - JAVA_OPTS_APPEND=-Dkeycloak.profile.feature.token_exchange=enabled -Dkeycloak.profile=preview
+#      - DB_VENDOR=mariadb
+#      - DB_DATABASE=keycloak_db
+#      - DB_ADDR=database
+#      - DB_USER=keycloak
+#      - DB_PASSWORD=dbpassword!
+#      - DEBUG=true
+#      - DEBUG_PORT='*:8787'
+#    depends_on:
+#      - database
+#    ports:
+#      - 8080:8080
+#      - 8787:8787
+#    networks:
+#      database_network:
+#      lc_network:
+#        aliases:
+#          - ${KC_DOMAIN:?}
+
+volumes:
+  database_volume:
+networks:
+  database_network:
+  lc_network:
