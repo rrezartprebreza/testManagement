@@ -4,7 +4,7 @@ import com.backend.testManagement.dto.TestDTO;
 import com.backend.testManagement.exceptions.BadRequestException;
 import com.backend.testManagement.exceptions.EntityNotFoundException;
 import com.backend.testManagement.exceptions.InternalServerErrorException;
-import com.backend.testManagement.model.TestModel;
+import com.backend.testManagement.model.Test;
 import com.backend.testManagement.repository.TestRepository;
 import com.backend.testManagement.services.TestService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -66,11 +66,11 @@ public class TestServiceImpl implements TestService {
         throw new BadRequestException(message);
     }
 
-    private TestDTO convertToDTO(TestModel testModel) {
+    private TestDTO convertToDTO(Test test) {
         return TestDTO.builder()
-                .id(testModel.getId())
-                .name(testModel.getName())
-                .lastname(testModel.getLastname())
+                .id(test.getId())
+                .name(test.getName())
+                .lastname(test.getLastname())
                 .build();
     }
 }

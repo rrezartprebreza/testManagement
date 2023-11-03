@@ -1,7 +1,7 @@
 package com.backend.testManagement.repository;
 
-import com.backend.testManagement.model.TestModel;
+import com.backend.testManagement.model.Test;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface TestRepository extends JpaRepository<TestModel, String> {
+public interface TestRepository extends JpaRepository<Test, String> {
 }

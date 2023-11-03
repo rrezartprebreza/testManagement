@@ -20,7 +20,7 @@ import java.util.UUID;
 @AllArgsConstructor
 @Table(name = "test")
 @Entity
-public class TestModel {
+public class Test {
 
     @Id
     @Column(name = "id")
