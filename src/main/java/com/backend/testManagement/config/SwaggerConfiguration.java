@@ -36,7 +36,7 @@ public class SwaggerConfiguration {
     @Bean
     public OpenAPI customOpenAPI() {
         final String securitySchemeName = "bearerAuth";
-        final String apiTitle = "Survey Backend";
+        final String apiTitle = "TestManagement Backend";
         return new OpenAPI()
                 .addSecurityItem(new SecurityRequirement().addList(securitySchemeName))
                 .components(
