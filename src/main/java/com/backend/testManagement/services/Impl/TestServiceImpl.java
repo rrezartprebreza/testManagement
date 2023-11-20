@@ -7,6 +7,7 @@ import com.backend.testManagement.dto.ValidationUtilsDTO;
 import com.backend.testManagement.exceptions.BadRequestException;
 import com.backend.testManagement.exceptions.EntityNotFoundException;
 import com.backend.testManagement.exceptions.InternalServerErrorException;
+import com.backend.testManagement.mapper.TestMapper;
 import com.backend.testManagement.model.Test;
 import com.backend.testManagement.repository.TestRepository;
 import com.backend.testManagement.services.TestService;
@@ -28,84 +29,68 @@ public class TestServiceImpl implements TestService {
     private static final Logger logger = Logger.getLogger(TestServiceImpl.class.getName());
 
     private final TestRepository testRepository;
+    private final TestMapper testMapper;
 
     @Autowired
-    public TestServiceImpl(TestRepository testRepository) {
+    public TestServiceImpl(TestRepository testRepository, TestMapper testMapper) {
         this.testRepository = testRepository;
+        this.testMapper = testMapper;
     }
-
 
     @Override
     @Transactional
     public TestDTO saveTest(TestDTOSave testDTO) {
-        // Validate the input
         try {
-            // Convert the DTO to a Test entity
-            Test test = convertToEntity(testDTO);
-
-            // Save the test entity to the repository
+            Test test = testMapper.mapToEntity(testDTO);
             Test savedTest = testRepository.save(test);
-
-            // Convert the saved test entity to a DTO and return it
-            return convertToDTO(savedTest);
+            return testMapper.mapToDTO(savedTest);
         } catch (DataAccessException ex) {
-            // Handle data access exceptions
             logAndThrowInternalServerError("Error saving test", ex);
-            return null; // Unreachable code
+            return null;
         } catch (BadRequestException ex) {
-            // Handle validation exceptions
             logAndThrowBadRequest("Invalid request: " + ex.getMessage());
-            return null; // Unreachable code
+            return null;
         }
     }
 
     @Override
     @Transactional
     public TestDTO updateTest(String id, TestDTOSave testDTO) {
-
-        // Find the existing test by id
         Test existingTest = findTestById(id);
-
-        // Update the existing test with the updatedTestDTO values
         existingTest.setName(testDTO.getName());
         existingTest.setLastname(testDTO.getLastname());
-
-        // Save the updated test entity to the repository
         Test updatedTest = testRepository.save(existingTest);
-
-        // Log the successful update
         logger.info("Test updated successfully: " + id);
-
-        // Convert the updated test entity to a DTO and return it
-        return convertToDTO(updatedTest);
-
+        return testMapper.mapToDTO(updatedTest);
     }
-
 
     @Override
     @Transactional(readOnly = true)
     public CommonResponseDTO<TestDTO> getAllTests(int pageNo, int pageSize, String sortBy, String sortDirection) {
         ValidationUtilsDTO.validatePageParameters(pageNo, pageSize);
-
         Sort sort = Sort.by(sortBy);
         if ("desc".equalsIgnoreCase(sortDirection)) {
             sort = sort.descending();
         }
         Pageable pageable = PageRequest.of(pageNo, pageSize, sort);
-
         Page<Test> testPage = testRepository.findAll(pageable);
-
         if (testPage.isEmpty()) {
             logAndThrowEntityNotFoundException("No tests found");
         }
-
         List<TestDTO> testDTOs = testPage.getContent().stream()
-                .map(this::convertToDTO)
+                .map(testMapper::mapToDTO)
                 .collect(Collectors.toList());
-
         return buildCommonResponse(testDTOs, testPage);
     }
 
+    @Override
+    public Test findTestById(String id) {
+        return testRepository.findById(id)
+                .orElseThrow(() -> {
+                    logger.warning("Test not found: " + id);
+                    return new EntityNotFoundException("Test not found");
+                });
+    }
 
     private void logAndThrowEntityNotFoundException(String message) {
         logger.warning(message);
@@ -122,40 +107,16 @@ public class TestServiceImpl implements TestService {
         throw new BadRequestException(message);
     }
 
-    private TestDTO convertToDTO(Test test) {
-        return TestDTO.builder()
-                .id(test.getId())
-                .name(test.getName())
-                .lastname(test.getLastname())
-                .build();
-    }
-
-    @Override
-    public Test findTestById(String id) {
-
-        return testRepository.findById(id)
-                .orElseThrow(() -> {
-                    logger.warning("Test not found: " + id);
-                    return new EntityNotFoundException("Test not found");
-                });
-
-    }
-
-    private Test convertToEntity(TestDTOSave testDTO) {
-        return Test.builder()
-                .name(testDTO.getName())
-                .lastname(testDTO.getLastname())
-                .build();
-    }
-
     private CommonResponseDTO<TestDTO> buildCommonResponse(List<TestDTO> testDTOs, Page<Test> testPage) {
-        CommonResponseDTO<TestDTO> response = new CommonResponseDTO<>();
-        response.setList(testDTOs);
-        response.setTotalItems(testPage.getTotalElements());
-        response.setCurrentPage(testPage.getNumber());
-        response.setPageNumber(testPage.getNumber());
-        response.setPageSize(testPage.getSize());
-        return response;
+
+        return CommonResponseDTO.<TestDTO>builder()
+                .list(testDTOs)
+                .totalItems(testPage.getTotalElements())
+                .currentPage(testPage.getNumber())
+                .pageNumber(testPage.getNumber())
+                .pageSize(testPage.getSize())
+                .build();
+
     }
 
 }

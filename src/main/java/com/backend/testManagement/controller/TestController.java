@@ -5,6 +5,7 @@ import com.backend.testManagement.dto.TestDTO;
 import com.backend.testManagement.dto.TestDTOSave;
 import com.backend.testManagement.exceptions.BadRequestException;
 import com.backend.testManagement.exceptions.EntityNotFoundException;
+import com.backend.testManagement.model.Test;
 import com.backend.testManagement.services.TestService;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -66,5 +67,14 @@ public class TestController {
         TestDTO updatedTestDTO = testService.updateTest(id, testDTO);
         return ResponseEntity.ok(updatedTestDTO);
 
+    }
+
+    @GetMapping("/{id}")
+    @ApiResponse(responseCode = "200", description = "Successfully retrieved test by ID")
+    @ApiResponse(responseCode = "404", description = "Test not found")
+    @ApiResponse(responseCode = "500", description = "Internal server error")
+    public ResponseEntity<Test> findById(@PathVariable String id) {
+        Test testDTO = testService.findTestById(id);
+        return ResponseEntity.ok(testDTO);
     }
 }
