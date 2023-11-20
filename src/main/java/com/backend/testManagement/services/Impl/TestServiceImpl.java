@@ -59,6 +59,28 @@ public class TestServiceImpl implements TestService {
         }
     }
 
+    @Override
+    @Transactional
+    public TestDTO updateTest(String id, TestDTOSave testDTO) {
+
+        // Find the existing test by id
+        Test existingTest = findTestById(id);
+
+        // Update the existing test with the updatedTestDTO values
+        existingTest.setName(testDTO.getName());
+        existingTest.setLastname(testDTO.getLastname());
+
+        // Save the updated test entity to the repository
+        Test updatedTest = testRepository.save(existingTest);
+
+        // Log the successful update
+        logger.info("Test updated successfully: " + id);
+
+        // Convert the updated test entity to a DTO and return it
+        return convertToDTO(updatedTest);
+
+    }
+
 
     @Override
     @Transactional(readOnly = true)
@@ -106,6 +128,17 @@ public class TestServiceImpl implements TestService {
                 .name(test.getName())
                 .lastname(test.getLastname())
                 .build();
+    }
+
+    @Override
+    public Test findTestById(String id) {
+
+        return testRepository.findById(id)
+                .orElseThrow(() -> {
+                    logger.warning("Test not found: " + id);
+                    return new EntityNotFoundException("Test not found");
+                });
+
     }
 
     private Test convertToEntity(TestDTOSave testDTO) {
