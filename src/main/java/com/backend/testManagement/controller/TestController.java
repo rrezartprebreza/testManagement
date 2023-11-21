@@ -77,4 +77,11 @@ public class TestController {
         Test testDTO = testService.findTestById(id);
         return ResponseEntity.ok(testDTO);
     }
+    @DeleteMapping(value = "/{id}")
+    @ApiResponse(responseCode = "404", description = "Test not found")
+    @ApiResponse(responseCode = "500", description = "Internal server error")
+    public ResponseEntity<Test> deteleteTest(@PathVariable String id) {
+        Test testDTO = testService.deleteTest(id);
+        return ResponseEntity.ok(testDTO);
+    }
 }

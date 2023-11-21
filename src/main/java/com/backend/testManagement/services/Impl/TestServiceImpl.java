@@ -64,6 +64,28 @@ public class TestServiceImpl implements TestService {
         return testMapper.mapToDTO(updatedTest);
     }
 
+
+    @Override
+    @Transactional
+    public Test deleteTest(String id) {
+        try {
+            // Find the existing test by id
+            Test existingTest = findTestById(id);
+
+            // Delete the test from the repository
+            testRepository.delete(existingTest);
+
+            // Log the successful deletion
+            logger.info("Test deleted successfully: " + id);
+            return existingTest;
+        } catch (DataAccessException ex) {
+            logAndThrowInternalServerError("Error deleting test", ex);
+        } catch (EntityNotFoundException ex) {
+            logAndThrowEntityNotFoundException("Test not found: " + id);
+        }
+        return null;
+    }
+
     @Override
     @Transactional(readOnly = true)
     public CommonResponseDTO<TestDTO> getAllTests(int pageNo, int pageSize, String sortBy, String sortDirection) {

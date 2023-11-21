@@ -12,6 +12,7 @@ public interface TestService {
     CommonResponseDTO<TestDTO> getAllTests(int pageNo, int pageSize, String sortBy, String sortDirection);
     TestDTO saveTest(TestDTOSave testDTO);
     Test findTestById(String id);
+    Test deleteTest(String id);
     TestDTO updateTest(String id,TestDTOSave testDTO);
 
 
