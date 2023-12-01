@@ -28,11 +28,13 @@ public class TestController {
         this.testService = testService;
     }
 
-    @GetMapping
+    @GetMapping(value = "/getAll")
     @ApiResponse(responseCode = "200", description = "Successfully retrieved all tests")
     @ApiResponse(responseCode = "404", description = "No tests found")
     @ApiResponse(responseCode = "500", description = "Internal server error")
     @ApiResponse(responseCode = "400", description = "Invalid request")
+    @ApiResponse(responseCode = "403", description = "Forbidden")
+    @ApiResponse(responseCode = "401", description = "Unauthorized")
     public ResponseEntity<CommonResponseDTO<TestDTO>> getAllTests(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
@@ -44,10 +46,12 @@ public class TestController {
 
     }
 
-    @PostMapping
+    @PostMapping(value = "/save")
     @ApiResponse(responseCode = "201", description = "Test created successfully")
     @ApiResponse(responseCode = "400", description = "Invalid request")
     @ApiResponse(responseCode = "500", description = "Internal server error")
+    @ApiResponse(responseCode = "403", description = "Forbidden")
+    @ApiResponse(responseCode = "401", description = "Unauthorized")
     public ResponseEntity<TestDTO> saveTest(@RequestBody TestDTOSave testDTO) {
 
         TestDTO savedTestDTO = testService.saveTest(testDTO);
@@ -62,6 +66,8 @@ public class TestController {
     @ApiResponse(responseCode = "400", description = "Invalid request")
     @ApiResponse(responseCode = "404", description = "Test not found")
     @ApiResponse(responseCode = "500", description = "Internal server error")
+    @ApiResponse(responseCode = "403", description = "Forbidden")
+    @ApiResponse(responseCode = "401", description = "Unauthorized")
     public ResponseEntity<TestDTO> updateTest(@PathVariable String id, @RequestBody TestDTOSave testDTO) {
 
         TestDTO updatedTestDTO = testService.updateTest(id, testDTO);
@@ -79,7 +85,10 @@ public class TestController {
     }
     @DeleteMapping(value = "/{id}")
     @ApiResponse(responseCode = "404", description = "Test not found")
-    @ApiResponse(responseCode = "500", description = "Internal server error")
+    @ApiResponse(responseCode = "200", description = "Successfully deleted test")
+    @ApiResponse(responseCode = "400", description = "Invalid request")
+    @ApiResponse(responseCode = "403", description = "Forbidden")
+    @ApiResponse(responseCode = "401", description = "Unauthorized")
     public ResponseEntity<Test> deteleteTest(@PathVariable String id) {
         Test testDTO = testService.deleteTest(id);
         return ResponseEntity.ok(testDTO);
