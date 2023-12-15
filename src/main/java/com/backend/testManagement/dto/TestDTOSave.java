@@ -1,9 +1,7 @@
 package com.backend.testManagement.dto;
 
 
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
@@ -11,6 +9,8 @@ import javax.validation.constraints.Size;
 @Getter
 @Setter
 @Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class TestDTOSave {
 
     @NotBlank
